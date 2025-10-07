@@ -1,0 +1,15 @@
+# Build folders
+Debug/
+Release/
+build/
+
+# IDE-specific files
+.project
+.cproject
+.settings/
+*.launch
+*.ioc.swp
+
+# User-specific files
+*.suo
+*.user
