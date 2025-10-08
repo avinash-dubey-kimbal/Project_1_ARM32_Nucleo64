@@ -38,20 +38,24 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-void led_blink(unsigned int time_req);
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+uint32_t blink_delays[]={5000,1000};
+volatile uint8_t delay_index = 0;
+uint32_t time_req;
+uint32_t last_button_press_time=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void SystemPower_Config(void);
 /* USER CODE BEGIN PFP */
-
+void led_blink(uint32_t time_req);
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -101,17 +105,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if(HAL_GPIO_ReadPin(USER_BUTTON_GPIO_Port,USER_BUTTON_Pin))
-	  //if(led_mode=='f')
-	  {
-		  led_blink(5000);
-	  }
-	  else
-	  {
-		  led_blink(1000);
-	  }
-
-
+	  led_blink(blink_delays[delay_index]);
 
     /* USER CODE END WHILE */
 
@@ -185,6 +179,28 @@ static void SystemPower_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+void led_blink(uint32_t time_req)
+{
+	HAL_Delay(time_req);
+	HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port,LED_GREEN_Pin);
+}
+
+void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
+{
+	if(GPIO_Pin == GPIO_PIN_13)
+	{
+		if(HAL_GetTick()-last_button_press_time>200)
+		{
+			delay_index++;
+			if (delay_index >= (sizeof(blink_delays))/(sizeof(uint32_t)))
+			{
+				delay_index = 0;
+			}
+
+			last_button_press_time = HAL_GetTick();
+		}
+	}
+}
 
 /* USER CODE END 4 */
 
@@ -192,11 +208,6 @@ static void SystemPower_Config(void)
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
-void led_blink(unsigned int time_req)
-{
-	HAL_Delay(time_req);
-	HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port,LED_GREEN_Pin);
-}
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */

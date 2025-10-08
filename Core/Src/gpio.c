@@ -59,6 +59,10 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(LED_GREEN_GPIO_Port, &GPIO_InitStruct);
 
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI13_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI13_IRQn);
+
 }
 
 /* USER CODE BEGIN 2 */
